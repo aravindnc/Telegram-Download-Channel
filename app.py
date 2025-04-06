@@ -17,6 +17,11 @@ api_id = config.get('Telegram', 'api_id', fallback='0')
 api_hash = config.get('Telegram', 'api_hash', fallback='0')
 group_username = config.get('Telegram', 'group_username', fallback='')
 download_folder = config.get('Paths', 'download_folder', fallback='downloads')
+mode = config.get('General', 'mode', fallback='download').lower()
+
+# Update the configuration to read allowed file extensions from the config file
+allowed_extensions = config.get('General', 'allowed_extensions', fallback='.pdf').split(',')
+allowed_extensions = [ext.strip().lower() for ext in allowed_extensions]
 
 if not os.path.exists(download_folder):
     os.makedirs(download_folder)
@@ -63,10 +68,14 @@ with TelegramClient('anon', api_id, api_hash) as client:
     file_counter = 0
     for message in client.iter_messages(group_username):
         if message.media and isinstance(message.media, MessageMediaDocument):
-            if message.file and message.file.name and message.file.name.lower().endswith('.pdf'):
+            if message.file and message.file.name and any(message.file.name.lower().endswith(ext) for ext in allowed_extensions):
                 file_counter += 1
-                logging.info("-----------------------------------------------------")
-                logging.info(f"{file_counter}: {message.file.name}")
-                file_path = os.path.join(download_folder, message.file.name)
-                download_file(client, message, file_path)
-    logging.info(f"Total files processed: {file_counter}")
+                #logging.info("-----------------------------------------------------")
+                #logging.info(f"{file_counter}: {message.file.name}")
+                if mode == 'download':
+                    file_path = os.path.join(download_folder, message.file.name)
+                    download_file(client, message, file_path)
+    if mode == 'count':
+        logging.info(f"Total files with allowed extensions in the group: {file_counter}")
+    else:
+        logging.info(f"Total files processed: {file_counter}")
