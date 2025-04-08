@@ -60,6 +60,8 @@ async def download_files_from_topic(group_id, topic_id):
                     yield msg
         messages = filtered_messages()
 
+    file_count = 0  # Initialize file count
+
     # Iterate through messages and download files
     async for message in messages:
         if message.media:
@@ -68,6 +70,8 @@ async def download_files_from_topic(group_id, topic_id):
 
             # Check if the file is a PDF
             if file_name.lower().endswith('.pdf'):
+                
+                file_count += 1  # Increment file count
                 # Append message datetime as a timestamp to the file name
                 timestamp = message.date.strftime('%Y%m%d_%H%M%S')
                 file_name = f"{os.path.splitext(file_name)[0]}_{timestamp}{os.path.splitext(file_name)[1]}"
@@ -78,11 +82,11 @@ async def download_files_from_topic(group_id, topic_id):
                 if os.path.exists(file_path):
                     existing_size = os.path.getsize(file_path)
                     if existing_size == message.file.size:
-                        print(f"Skipping {file_name}, file already exists with matching size.")
+                        print(f"Skipping {file_count}. {file_name}, file already exists with matching size.")
                         continue
 
                 # Download the file with tqdm progress bar
-                print(f"Downloading {file_name}...")
+                print(f"Downloading {file_count}. {file_name}...")
 
                 with tqdm(total=message.file.size, unit='B', unit_scale=True, desc=file_name) as pbar:
                     def progress_callback(current, total):
@@ -90,9 +94,9 @@ async def download_files_from_topic(group_id, topic_id):
 
                     await client.download_media(message, file_path, progress_callback=progress_callback)
 
-                print(f"Saved to {file_path}")
+                
 
-    print("Download completed!")
+    print(f"Download completed! Total files downloaded: {file_count}")
 
 # Run the script
 with client:
