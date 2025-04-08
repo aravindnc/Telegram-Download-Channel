@@ -30,6 +30,10 @@ if not os.path.exists(log_file_path):
 with open(log_file_path, 'r') as f:
     downloaded_files = set(f.read().splitlines())
 
+# Update the configuration to read allowed file extensions from the config file
+allowed_extensions = config.get('General', 'allowed_extensions', fallback='.pdf').split(',')
+allowed_extensions = [ext.strip().lower() for ext in allowed_extensions]
+
 # Logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -77,12 +81,12 @@ async def main():
     file_counter = 0
     async for message in client.iter_messages(group_username):
         if message.media and isinstance(message.media, MessageMediaDocument):
-            if message.file and message.file.name and message.file.name.lower().endswith('.pdf'):
+            if message.file and message.file.name and any(message.file.name.lower().endswith(ext) for ext in allowed_extensions):
                 file_counter += 1
-                logging.info(f"\n🔍 Found PDF #{file_counter}: {message.file.name}")
+                logging.info(f"\n🔍 Found file #{file_counter}: {message.file.name}")
                 await download_file(client, message)
 
-    logging.info(f"\n🎉 Finished! Total new PDFs downloaded: {file_counter}")
+    logging.info(f"\n🎉 Finished! Total new files downloaded: {file_counter}")
     await client.disconnect()
 
 await main()

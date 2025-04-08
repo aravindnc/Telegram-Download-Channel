@@ -52,6 +52,17 @@ The `config.ini` file contains the following sections:
 - `download_folder`: The folder where downloaded files will be saved (for local execution).
 - `drive_folder`: The folder in Google Drive where files will be saved (for Colab execution).
 
+## File Extensions Configuration
+
+The `config.ini` file now supports specifying allowed file extensions for downloads. This is configured under the `[General]` section with the `allowed_extensions` key. For example:
+
+```ini
+[General]
+allowed_extensions = .pdf, .docx, .txt
+```
+
+This allows you to customize the types of files to download by listing their extensions as a comma-separated string.
+
 ## Logging
 - Downloaded files are logged in `downloaded.txt` to prevent duplicate downloads.
 
