@@ -1,3 +1,4 @@
 config.ini
-.session
+*.session
 downloads
+downloaded_files
