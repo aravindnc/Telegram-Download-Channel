@@ -2,7 +2,7 @@ name: Auto-Dump Telegram Files
 
 on:
   schedule:
-    - cron: '*/10 * * * *' # Runs daily at 6:00 PM IST (Indian Standard Time)
+    - cron: '30 0 * * *' # Runs daily at 6:00 PM IST (Indian Standard Time)
   workflow_dispatch: # Allows manual triggering of the workflow
 
 jobs:
